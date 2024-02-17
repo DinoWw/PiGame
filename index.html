@@ -3,5 +3,25 @@
    <head>
       <title>Hello!</title>
    </head>
-   <body>Integrating Socket.io with Node.js and Express</body>
+   <script src = "/socket.io/socket.io.js"></script>
+   
+   <body>
+   <p>Integrating Socket.io with Node.js and Express</p>
+   <embed type="text/html" src="https://pi2e.ch/blog/wp-content/uploads/2017/03/pi_dec_1m.txt" width="500" height="200"> 
+   <button id="foundButton">Click</button>
+   </body>
+
+   <script>
+      const socket = io();
+      document.getElementById('foundButton').onclick = 
+      function(){
+         // emmit index of match in pi
+         socket.emit("foundMatch", 12);
+      };
+      
+
+      socket.on("invalidMatch", () => alert("InvalidMatch (occurence already found or invalid)"))
+
+
+   </script>
 </html>
