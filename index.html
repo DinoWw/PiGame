@@ -4,23 +4,101 @@
       <title>Hello!</title>
    </head>
    <script src = "/socket.io/socket.io.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+   <style type="text/css">
+      .hilite {color: yellow;}
+   </style>
    
    <body>
    <p>Integrating Socket.io with Node.js and Express</p>
+   <p id = 'number'>3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155</p>
    <embed type="text/html" src="https://pi2e.ch/blog/wp-content/uploads/2017/03/pi_dec_1m.txt" width="500" height="200"> 
    <button id="foundButton">Click</button>
    </body>
 
    <script>
       const socket = io();
-      document.getElementById('foundButton').onclick = 
-      function(){
-         // emmit index of match in pi
-         socket.emit("foundMatch", 12);
-      };
-      
+      socket.on("invalidMatch", () => alert("InvalidMatch (occurence already found or invalid)"));
 
-      socket.on("invalidMatch", () => alert("InvalidMatch (occurence already found or invalid)"))
+      // setup constants and validation functions
+      let gamestate = {};
+      const matchNumber = 69 ;
+      let PI = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155"//(await fetch("https://pi2e.ch/blog/wp-content/uploads/2017/03/pi_dec_1m.txt")).text();
+      const matchesAtIndex = matchChecker(PI, matchNumber);
+      console.log(PI.slice(0, 10))
+
+      $("body").click(function() {
+         // Gets clicked on word (or selected text if text is selected)
+         var t = '';
+         var tchIndex = 0;
+         if (window.getSelection && (sel = window.getSelection()).modify) {
+            // Webkit, Gecko
+            var s = window.getSelection();
+            if (s.isCollapsed) {
+               s.modify('move', 'backward', 'character');
+               s.modify('extend', 'forward', 'character');
+               s.modify('extend', 'forward', 'character');
+               t = s.toString();
+
+               s.modify('extend', 'backward', 'word');
+               matchIndex = s.toString().length + 2;
+
+
+               s.modify('move', 'forward', 'character'); //clear selection
+            }
+            else {
+               t = s.toString();
+            }
+         } else if ((sel = document.selection) && sel.type != "Control") {
+            alrert("IE 4+")
+           
+         }
+         console.log(`index: ${matchIndex}, t: ${t};`);
+         //console.log(t, matchNumber, t == matchNumber, matchesAtIndex(matchIndex))
+
+         if(t == matchNumber && !gamestate.founds.includes(matchIndex) && matchesAtIndex(matchIndex)){
+            console.log("foundMatch")
+            socket.emit("foundMatch", matchIndex);
+         }
+
+      });
+
+
+      socket.on("gamestate", (gs) => {
+         gamestate = gs;
+
+         // TODO: potentially optimise so it doesn't require a dozen calls to highlight()
+         const el = document.getElementById("number");
+         el.innerHTML = PI;
+         for(let i = gamestate.founds.length - 1; i >= 0; i--){
+            highlight(el, gamestate.founds[i], gamestate.founds[i]+1);
+         }
+
+      })
+
+      function highlight(element, start, end) { 
+         var str = element.innerHTML;
+         str = str.substr(0, start) +
+            '<span class="hilite">' + 
+            str.substr(start, end - start + 1) +
+            '</span>' +
+            str.substr(end + 1);
+         element.innerHTML = str;
+      }
+
+      // constant, match
+      function matchChecker(c, m){
+         m = m.toString();
+         c = c.toString();
+         // index
+         return function matchesAtIndex(i){
+            //console.log(c.slice(i, i+m.length), m.length, i)
+            return c.slice(i, i+m.length) == m;
+         }
+      }
+
+
 
 
    </script>
