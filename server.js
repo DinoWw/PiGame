@@ -37,13 +37,18 @@ io.on('connection', (socket) => {
     console.log("foundMatch: ", gamestate)
     if(!gamestate.founds.includes(index) && matchesAtIndex(index)){
       gamestate.founds.push(index);
-      socket.emit("gamestate", gamestate);
+      io.sockets.emit("gamestate", gamestate);
+      io.sockets.emit("foundMatch");
     } 
     else {
       socket.emit("invalidMatch")
     };
 
   })
+
+
+
+
 
   socket.on('disconnect', function () {
     console.log('user disconnected');

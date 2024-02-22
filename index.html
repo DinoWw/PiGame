@@ -26,7 +26,10 @@
       const matchNumber = 69 ;
       let PI = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155"//(await fetch("https://pi2e.ch/blog/wp-content/uploads/2017/03/pi_dec_1m.txt")).text();
       const matchesAtIndex = matchChecker(PI, matchNumber);
-      console.log(PI.slice(0, 10))
+      
+
+      const numberElement = document.getElementById("number");
+
 
       $("body").click(function() {
          // Gets clicked on word (or selected text if text is selected)
@@ -44,8 +47,7 @@
                s.modify('extend', 'backward', 'word');
                matchIndex = s.toString().length + 2;
 
-
-               s.modify('move', 'forward', 'character'); //clear selection
+               s.empty(); //clear selection
             }
             else {
                t = s.toString();
@@ -69,12 +71,15 @@
          gamestate = gs;
 
          // TODO: potentially optimise so it doesn't require a dozen calls to highlight()
-         const el = document.getElementById("number");
-         el.innerHTML = PI;
+         numberElement.innerHTML = PI;
          for(let i = gamestate.founds.length - 1; i >= 0; i--){
-            highlight(el, gamestate.founds[i], gamestate.founds[i]+1);
+            highlight(numberElement, gamestate.founds[i], gamestate.founds[i]+1);
          }
 
+      })
+
+      socket.on("foundMatch", () => {
+         alert("DRINK");
       })
 
       function highlight(element, start, end) { 
